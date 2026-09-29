@@ -1,6 +1,12 @@
-
 import numpy as np
-from src.model_utils import evaluate_model, persistence_forecast
+import pandas as pd
+import pytest
+
+from src.model_utils import (
+    evaluate_model,
+    persistence_forecast,
+    validate_temperature_inputs
+)
 
 
 def test_persistence_forecast():
@@ -22,3 +28,47 @@ def test_evaluate_model():
     assert np.isclose(results["MAE"], 0.5)
     assert np.isclose(results["RMSE"], 0.5)
     assert np.isclose(results["R2"], 0.8)
+
+
+# Example valid sensor observation
+def valid_input():
+    return pd.DataFrame({
+        "Temperature": [22.5],
+        "Humidity": [55.0],
+        "Carbon dioxide": [600.0],
+        "hour": [14.5],
+        "day_of_week": [2]
+    })
+
+
+def test_valid_temperature_inputs():
+    data = valid_input()
+
+    result = validate_temperature_inputs(data)
+
+    assert len(result) == 1
+    assert list(result.columns) == list(data.columns)
+
+
+def test_missing_input_column():
+    data = valid_input()
+    data = data.drop(columns=["Humidity"])
+
+    with pytest.raises(ValueError):
+        validate_temperature_inputs(data)
+
+
+def test_missing_input_value():
+    data = valid_input()
+    data.loc[0, "Temperature"] = np.nan
+
+    with pytest.raises(ValueError):
+        validate_temperature_inputs(data)
+
+
+def test_invalid_humidity():
+    data = valid_input()
+    data.loc[0, "Humidity"] = 150
+
+    with pytest.raises(ValueError):
+        validate_temperature_inputs(data)

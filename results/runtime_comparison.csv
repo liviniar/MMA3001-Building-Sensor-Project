@@ -1,0 +1,4 @@
+Model,Average Training Time (s),Average Prediction Time (s)
+Persistence,0.0,0.000629705999926955
+Linear regression,0.015791064350014494,0.006694165249990646
+Decision tree,0.18122697690000678,0.005758773649989735
