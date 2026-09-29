@@ -1,44 +1,79 @@
-\# MMA3001 Building Sensor Project
+# MMA3001 Building Sensor Project
 
+## Project Overview
 
+This project investigates one-hour-ahead indoor temperature
+forecasting using environmental sensor data.
 
-Individual project for MMA3001 Numerical Methods and Machine Learning.
+Three forecasting methods were compared:
+- Persistence baseline
+- Linear regression
+- Decision-tree regression
 
+## Dataset
 
+Environmental sensor measurements were obtained from the
+provided building sensor dataset.
 
-This project investigates environmental sensor and building occupancy data to develop and evaluate a computational method for analysing or predicting building occupancy.
+The final analysis uses 29,557 observations from one sensor,
+with temperature forecasts approximately one hour ahead.
 
+Input variables:
+- Current temperature
+- Humidity
+- Carbon dioxide
+- Hour of day
+- Day of week
 
+## Methodology
 
-\## Project Structure
+The dataset was divided chronologically into training,
+validation and testing periods.
 
+Decision-tree depth was optimised using validation data.
+The selected model was then retrained using the combined
+training and validation datasets.
 
+The test dataset was reserved for final evaluation.
 
-\- `data/` - Raw and processed datasets
+## Final Test Results
 
-\- `notebooks/` - Jupyter notebooks used for data investigation and analysis
+| Model | MAE (°C) | RMSE (°C) | R² |
+|---|---:|---:|---:|
+| Persistence | 0.468 | 0.636 | 0.955 |
+| Linear regression | 0.465 | 0.631 | 0.956 |
+| Decision tree | 0.386 | 0.560 | 0.965 |
 
-\- `src/` - Python source code
+The selected depth-8 decision tree achieved a 17.5%
+reduction in MAE compared with persistence.
 
-\- `tests/` - Test functions
+## Project Structure
 
-\- `results/` - Generated results, tables and figures
+- data/ - Raw datasets (excluded from GitHub)
+- notebooks/ - Data investigation and modelling
+- src/ - Reusable Python functions
+- tests/ - Automated tests
+- results/ - Evaluation results and figures
+- docs/ - Generated source-code documentation
+- models/ - Saved trained model
 
-\- `docs/` - HTML source-code documentation
+## Testing
 
+Automated tests are implemented using pytest.
 
+Run:
 
-\## Data
+    python -m pytest tests/ -v
 
+## Dependencies
 
+Install the required packages using:
 
-The raw datasets are stored locally and are not included in this GitHub repository.
+    pip install -r requirements.txt
 
+## Limitations
 
-
-\## Status
-
-
-
-Project setup and initial data investigation.
-
+Current temperature dominates model feature importance.
+Prediction errors tend to increase at higher temperatures.
+Results are based on one environmental sensor, so
+performance may differ for other sensors or buildings.
