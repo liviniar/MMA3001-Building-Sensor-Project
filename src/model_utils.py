@@ -8,8 +8,27 @@ from sklearn.metrics import (
 
 
 def evaluate_model(actual, predicted):
-    """Calculate regression model performance metrics."""
+    """
+    Evaluate the accuracy of a regression model.
 
+    Parameters
+    ----------
+    actual : array-like
+        Observed target values, in degrees Celsius.
+    predicted : array-like
+        Predicted target values, in degrees Celsius.
+
+    Returns
+    -------
+    dict
+        MAE and RMSE in degrees Celsius, and
+        dimensionless R2.
+
+    Notes
+    -----
+    Inputs must contain matching, non-empty arrays
+    of finite numerical values.
+    """
     return {
         "MAE": mean_absolute_error(actual, predicted),
         "RMSE": np.sqrt(mean_squared_error(actual, predicted)),
@@ -18,30 +37,59 @@ def evaluate_model(actual, predicted):
 
 
 def persistence_forecast(current_values):
-    """Predict that the future value equals the current value."""
+    """
+    Generate persistence baseline predictions.
 
+    Assumes the future temperature equals the
+    temperature at the current observation.
+
+    Parameters
+    ----------
+    current_values : array-like
+        Current temperature observations in degrees Celsius.
+
+    Returns
+    -------
+    numpy.ndarray
+        Forecast temperatures in degrees Celsius.
+    """
     return np.asarray(current_values)
 
 
 def validate_temperature_inputs(data):
     """
-    Validate input data for temperature forecasting.
+    Validate sensor inputs for temperature forecasting.
 
-    Required inputs:
-        Temperature: degrees Celsius
-        Humidity: percentage
-        Carbon dioxide: ppm
-        hour: decimal hour, 0 to less than 24
-        day_of_week: integer, 0 to 6
+    Parameters
+    ----------
+    data : pandas.DataFrame
+        Data containing the following features:
+        - Temperature: degrees Celsius
+        - Humidity: percentage
+        - Carbon dioxide: ppm
+        - hour: decimal hour, 0 to less than 24
+        - day_of_week: integer, 0 to 6
 
-    Returns:
-        Validated input DataFrame in the correct feature order.
+    Returns
+    -------
+    pandas.DataFrame
+        Validated input data in the required feature order.
 
-    Raises:
-        ValueError for missing columns, non-numeric values,
-        missing or infinite values, or invalid input ranges.
+    Raises
+    ------
+    ValueError
+        If required columns are missing, values are
+        non-numeric, values are missing or infinite,
+        humidity is outside 0–100%, hour is outside
+        0–24, or day_of_week is not an integer
+        between 0 and 6.
+
+    Notes
+    -----
+    This function performs basic input validation.
+    It does not guarantee reliable predictions for
+    observations outside the training data ranges.
     """
-
     required = [
         "Temperature",
         "Humidity",
