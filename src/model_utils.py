@@ -1,34 +1,19 @@
-import numpy as np
 
-from sklearn.metrics import (
-    mean_absolute_error,
-    mean_squared_error,
-    r2_score
-)
+import numpy as np
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
 
 def evaluate_model(actual, predicted):
-    """
-    Evaluate the accuracy of a regression model.
+    """Calculate regression MAE, RMSE and R2 for temperatures in Celsius."""
+    actual = np.asarray(actual, dtype=float).ravel()
+    predicted = np.asarray(predicted, dtype=float).ravel()
 
-    Parameters
-    ----------
-    actual : array-like
-        Observed target values, in degrees Celsius.
-    predicted : array-like
-        Predicted target values, in degrees Celsius.
+    if actual.size != predicted.size or actual.size < 2:
+        raise ValueError("Inputs must have matching lengths and at least two observations.")
 
-    Returns
-    -------
-    dict
-        MAE and RMSE in degrees Celsius, and
-        dimensionless R2.
+    if not np.isfinite(actual).all() or not np.isfinite(predicted).all():
+        raise ValueError("Inputs must contain finite numerical values.")
 
-    Notes
-    -----
-    Inputs must contain matching, non-empty arrays
-    of finite numerical values.
-    """
     return {
         "MAE": mean_absolute_error(actual, predicted),
         "RMSE": np.sqrt(mean_squared_error(actual, predicted)),
@@ -37,58 +22,30 @@ def evaluate_model(actual, predicted):
 
 
 def persistence_forecast(current_values):
-    """
-    Generate persistence baseline predictions.
-
-    Assumes the future temperature equals the
-    temperature at the current observation.
-
-    Parameters
-    ----------
-    current_values : array-like
-        Current temperature observations in degrees Celsius.
-
-    Returns
-    -------
-    numpy.ndarray
-        Forecast temperatures in degrees Celsius.
-    """
+    """Return current temperatures as persistence forecasts in Celsius."""
     return np.asarray(current_values)
 
 
 def validate_temperature_inputs(data):
     """
-    Validate sensor inputs for temperature forecasting.
+    Validate sensor data and return numeric features in the required order.
 
     Parameters
     ----------
     data : pandas.DataFrame
-        Data containing the following features:
-        - Temperature: degrees Celsius
-        - Humidity: percentage
-        - Carbon dioxide: ppm
-        - hour: decimal hour, 0 to less than 24
-        - day_of_week: integer, 0 to 6
+        Required columns:
+        Temperature (Celsius), Humidity (%), Carbon dioxide (ppm),
+        hour (0 inclusive to 24 exclusive), day_of_week (integer 0-6).
 
     Returns
     -------
     pandas.DataFrame
-        Validated input data in the required feature order.
+        Validated numeric input features in the required order.
 
     Raises
     ------
     ValueError
-        If required columns are missing, values are
-        non-numeric, values are missing or infinite,
-        humidity is outside 0–100%, hour is outside
-        0–24, or day_of_week is not an integer
-        between 0 and 6.
-
-    Notes
-    -----
-    This function performs basic input validation.
-    It does not guarantee reliable predictions for
-    observations outside the training data ranges.
+        If required columns are missing or values are invalid.
     """
     required = [
         "Temperature",
@@ -98,57 +55,30 @@ def validate_temperature_inputs(data):
         "day_of_week"
     ]
 
-    missing_columns = [
-        col for col in required if col not in data.columns
-    ]
+    missing = [col for col in required if col not in data.columns]
 
-    if missing_columns:
-        raise ValueError(
-            f"Missing required columns: {missing_columns}"
-        )
+    if missing:
+        raise ValueError(f"Missing required columns: {missing}")
 
-X = data[required].copy()
+    X = data[required].copy()
 
-try:
-    X = X.astype(float)
-except (TypeError, ValueError):
-    raise ValueError(
-        "All input features must contain numeric values."
-    )
+    try:
+        X = X.astype(float)
+    except (TypeError, ValueError):
+        raise ValueError("All input features must contain numeric values.")
 
     values = X.to_numpy()
 
     if not np.isfinite(values).all():
-        raise ValueError(
-            "Input contains missing or infinite values."
-        )
+        raise ValueError("Input contains missing or infinite values.")
 
     if not X["Humidity"].between(0, 100).all():
-        raise ValueError(
-            "Humidity must be between 0 and 100%."
-        )
+        raise ValueError("Humidity must be between 0 and 100%.")
 
-    if not X["hour"].between(
-        0, 24, inclusive="left"
-    ).all():
-        raise ValueError(
-            "Hour must be between 0 and 24."
-        )
+    if not X["hour"].between(0, 24, inclusive="left").all():
+        raise ValueError("Hour must be between 0 and 24.")
 
     if not X["day_of_week"].isin(range(7)).all():
-        raise ValueError(
-            "Day of week must be an integer from 0 to 6."
-        )
-actual = np.asarray(actual, dtype=float).ravel()
-predicted = np.asarray(predicted, dtype=float).ravel()
+        raise ValueError("Day of week must be an integer from 0 to 6.")
 
-if actual.size != predicted.size or actual.size < 2:
-    raise ValueError(
-        "Inputs must have matching lengths and at least two observations."
-    )
-
-if not np.isfinite(actual).all() or not np.isfinite(predicted).all():
-    raise ValueError(
-        "Inputs must contain finite numerical values."
-    )
     return X
