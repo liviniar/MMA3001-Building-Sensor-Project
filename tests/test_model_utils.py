@@ -72,9 +72,10 @@ def test_invalid_humidity():
 
     with pytest.raises(ValueError):
         validate_temperature_inputs(data)
-        def test_mismatched_evaluation_inputs():
+       
+def test_infinite_evaluation_input():
     with pytest.raises(ValueError):
-        evaluate_model([20, 21, 22], [20, 21])
+        evaluate_model([20, np.inf], [20, 21])
 
 
 def test_infinite_evaluation_input():
