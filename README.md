@@ -70,7 +70,21 @@ Run:
 Install the required packages using:
 
     pip install -r requirements.txt
+## Running the Project
 
+1. Clone the repository and install the required dependencies:
+
+       pip install -r requirements.txt
+
+2. Place the required environmental sensor dataset in the `data/` directory. Raw data are not included in the repository.
+
+3. Open the project notebook in the `notebooks/` directory using Jupyter Notebook.
+
+4. Run the notebook cells in order to reproduce the data processing, model development, validation and final evaluation.
+
+5. Automated tests can be run using:
+
+       python -m pytest tests/ -v
 ## Limitations
 
 Current temperature dominates model feature importance.
