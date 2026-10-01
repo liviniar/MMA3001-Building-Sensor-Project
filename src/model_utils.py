@@ -107,14 +107,16 @@ def validate_temperature_inputs(data):
             f"Missing required columns: {missing_columns}"
         )
 
-    X = data[required].copy()
+X = data[required].copy()
 
-    try:
-        values = X.to_numpy(dtype=float)
-    except (TypeError, ValueError):
-        raise ValueError(
-            "All input features must contain numeric values."
-        )
+try:
+    X = X.astype(float)
+except (TypeError, ValueError):
+    raise ValueError(
+        "All input features must contain numeric values."
+    )
+
+values = X.to_numpy()
 
     if not np.isfinite(values).all():
         raise ValueError(
@@ -137,5 +139,16 @@ def validate_temperature_inputs(data):
         raise ValueError(
             "Day of week must be an integer from 0 to 6."
         )
+actual = np.asarray(actual, dtype=float).ravel()
+predicted = np.asarray(predicted, dtype=float).ravel()
 
+if actual.size != predicted.size or actual.size < 2:
+    raise ValueError(
+        "Inputs must have matching lengths and at least two observations."
+    )
+
+if not np.isfinite(actual).all() or not np.isfinite(predicted).all():
+    raise ValueError(
+        "Inputs must contain finite numerical values."
+    )
     return X
