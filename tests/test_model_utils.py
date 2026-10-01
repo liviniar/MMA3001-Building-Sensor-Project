@@ -82,6 +82,11 @@ def test_infinite_evaluation_input():
 def test_invalid_hour():
     data = valid_input()
     data.loc[0, "hour"] = 25
+
+    with pytest.raises(ValueError):
+        validate_temperature_inputs(data)
+
+
 def test_mismatched_evaluation_inputs():
     with pytest.raises(ValueError):
         evaluate_model([20, 21, 22], [20, 21])
