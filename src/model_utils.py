@@ -116,7 +116,7 @@ except (TypeError, ValueError):
         "All input features must contain numeric values."
     )
 
-values = X.to_numpy()
+    values = X.to_numpy()
 
     if not np.isfinite(values).all():
         raise ValueError(
